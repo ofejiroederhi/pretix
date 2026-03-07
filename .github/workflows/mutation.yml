@@ -59,6 +59,8 @@ jobs:
 
       - name: Run Django checks
         working-directory: ./src
+        env:
+          PRETIX_CONFIG_FILE: tests/ci_sqlite.cfg
         run: python manage.py check
 
       - name: Prepare mutation workspace
