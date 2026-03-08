@@ -78,7 +78,11 @@ jobs:
           mkdir -p mutants/src/tests
 
       - name: Run mutation tests
-        run: mutmut run "${{ matrix.mutmut_pattern }}"
+        run: |
+          export PYTHONPATH="${{ github.workspace }}/src"
+          export DJANGO_SETTINGS_MODULE=tests.settings
+          export PRETIX_CONFIG_FILE=src/tests/ci_sqlite.cfg
+          mutmut run "${{ matrix.mutmut_pattern }}"
 
       - name: Export mutation summary
         if: always()
