@@ -162,11 +162,13 @@ namespaces = false
 
 [tool.mutmut]
 paths_to_mutate = [
+  "src/pretix/api/auth/",
   "src/pretix/base/management/commands/",
   "src/pretix/plugins/paypal2/",
   "src/pretix/plugins/paypal2/client/core/",
   "src/pretix/plugins/reports/",
   "src/pretix/plugins/statistics/",
+  "src/pretix/plugins/stripe/",
 ]
 pytest_add_cli_args_test_selection = [
   "src/tests/api/test_checkin.py",
@@ -175,7 +177,10 @@ pytest_add_cli_args_test_selection = [
   "src/tests/base/test_metrics.py",
   "src/tests/base/test_models.py",
   "src/tests/base/test_runperiodic.py",
+  "src/tests/control/test_auth.py",
+  "src/tests/control/test_devices.py",
   "src/tests/plugins/paypal2/",
+  "src/tests/plugins/stripe/",
 ]
 pytest_add_cli_args = [
   "-p",

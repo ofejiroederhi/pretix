@@ -7,10 +7,12 @@ on:
     paths:
       - ".github/workflows/mutation.yml"
       - "pyproject.toml"
+      - "src/pretix/api/auth/**"
       - "src/pretix/base/management/commands/**"
       - "src/pretix/plugins/paypal2/**"
       - "src/pretix/plugins/reports/**"
       - "src/pretix/plugins/statistics/**"
+      - "src/pretix/plugins/stripe/**"
       - "src/tests/**"
   schedule:
     - cron: "0 3 * * 1"
@@ -31,6 +33,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - module_name: api-auth
+            mutmut_pattern: "pretix.api.auth*"
           - module_name: base-management-commands
             mutmut_pattern: "pretix.base.management.commands*"
           - module_name: plugins-statistics
@@ -41,6 +45,8 @@ jobs:
             mutmut_pattern: "pretix.plugins.paypal2*"
           - module_name: plugins-paypal2-client-core
             mutmut_pattern: "pretix.plugins.paypal2.client.core*"
+          - module_name: plugins-stripe
+            mutmut_pattern: "pretix.plugins.stripe*"
     name: Mutation (${{ matrix.module_name }})
 
     steps:
@@ -64,7 +70,9 @@ jobs:
         run: python manage.py check
 
       - name: Prepare mutation workspace
-        run: rm -rf mutants .mutmut-cache
+        run: |
+          rm -rf mutants .mutmut-cache
+          mkdir -p mutants/src/tests
 
       - name: Run mutation tests
         run: mutmut run "${{ matrix.mutmut_pattern }}"
@@ -75,9 +83,13 @@ jobs:
           mutmut results > mutmut-results.txt || true
           if [ -d mutants ]; then
             tar -czf mutants-cache.tar.gz mutants
+          else
+            touch mutants-cache.tar.gz
           fi
           if [ -d .mutmut-cache ]; then
             tar -czf dot-mutmut-cache.tar.gz .mutmut-cache
+          else
+            touch dot-mutmut-cache.tar.gz
           fi
 
       - name: Upload mutation artifacts
