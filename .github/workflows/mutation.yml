@@ -23,6 +23,9 @@ permissions:
 env:
   FORCE_COLOR: 1
   PRETIX_CONFIG_FILE: src/tests/ci_sqlite.cfg
+  # So mutmut's pytest subprocess finds Django and tests when run from repo root
+  PYTHONPATH: src
+  DJANGO_SETTINGS_MODULE: tests.settings
 
 jobs:
   mutation:
