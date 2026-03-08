@@ -152,6 +152,12 @@ changelog = "https://pretix.eu/about/en/blog/"
 [tool.setuptools]
 include-package-data = true
 
+[tool.pytest.ini_options]
+# Required when pytest is run from repo root (e.g. mutmut); ensures Django and tests are importable
+pythonpath = ["src"]
+asyncio_default_fixture_loop_scope = "function"
+DJANGO_SETTINGS_MODULE = "tests.settings"
+
 [tool.setuptools.dynamic]
 version = {attr = "pretix.__version__"}
 
