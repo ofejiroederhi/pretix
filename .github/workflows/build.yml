@@ -50,11 +50,28 @@ jobs:
 
   sonarqube:
     name: SonarQube
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install system dependencies
+        run: sudo apt update && sudo apt install -y gettext
+      - name: Install Python dependencies
+        run: pip3 install uv && uv pip install --system -e ".[dev]"
+      - name: Install JS dependencies
+        working-directory: ./src
+        run: make npminstall
+      - name: Compile
+        working-directory: ./src
+        run: make all compress
+      - name: Run tests with coverage
+        working-directory: ./src
+        run: PRETIX_CONFIG_FILE=tests/ci_sqlite.cfg py.test -n 3 -p no:sugar --cov=./ --cov-report=xml tests --maxfail=100
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
