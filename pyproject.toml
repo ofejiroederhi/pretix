@@ -183,6 +183,7 @@ pytest_add_cli_args = [
   "-p",
   "no:sugar",
   "--maxfail=1",
+  "--deselect=src/tests/api/test_checkinrpc.py::test_reason_explanation_localization",
 ]
 also_copy = [
   "src/manage.py",

@@ -25,6 +25,8 @@ env:
   PRETIX_CONFIG_FILE: src/tests/ci_sqlite.cfg
   PYTHONPATH: ${{ github.workspace }}/src
   DJANGO_SETTINGS_MODULE: tests.settings
+  LANG: de_DE.UTF-8
+  LANGUAGE: de
 
 jobs:
   mutation:
