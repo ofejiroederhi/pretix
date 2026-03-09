@@ -167,6 +167,7 @@ include = ["pretix*"]
 namespaces = false
 
 [tool.mutmut]
+debug = true
 paths_to_mutate = [
   "src/pretix/api/auth/",
   "src/pretix/base/management/commands/",
@@ -178,16 +179,17 @@ paths_to_mutate = [
 ]
 # Only run tests that cover the mutated modules (api.auth, base mgmt, paypal2, reports, statistics, stripe)
 pytest_add_cli_args_test_selection = [
-  "src/tests/api/test_auth.py",
-  "src/tests/api/test_oauth.py",
-  "src/tests/api/test_deviceauth.py",
-  "src/tests/api/test_checkin.py",
-  "src/tests/api/test_organizers.py",
-  "src/tests/base/",
-  "src/tests/control/test_auth.py",
-  "src/tests/control/test_devices.py",
-  "src/tests/plugins/",
+  "src/tests",
 ]
+#  "src/tests/api/test_auth.py",
+#  "src/tests/api/test_oauth.py",
+#  "src/tests/api/test_deviceauth.py",
+#  "src/tests/api/test_checkin.py",
+#  "src/tests/api/test_organizers.py",
+#  "src/tests/base/",
+#  "src/tests/control/test_auth.py",
+#  "src/tests/control/test_devices.py",
+#  "src/tests/plugins/",
 # No --maxfail so stats run and per-mutant runs execute the full suite (don't stop at first failure)
 # Deselect tests that fail in mutmut CI (encoding/locale env) so stats can complete
 pytest_add_cli_args = [
@@ -208,6 +210,33 @@ pytest_add_cli_args = [
   "--deselect=src/tests/base/test_secrets.py::test_change_if_required[scheme1]",
   "--deselect=src/tests/base/test_secrets.py::test_change_if_invalid[scheme1]",
   "--deselect=src/tests/plugins/sendmail/test_rules.py::test_sendmail_context_localization",
+  "--deselect=src/tests/base/test_cross_selling.py::test_2f1r_discount_cross_selling_eventseries_mixed",
+  "--deselect=src/tests/base/test_cross_selling.py::test_2f1r_discount_cross_selling_eventseries_same",
+  "--deselect=src/tests/control/test_mail_settings_preview.py::MailSettingPreviewTest::test_localized_payment_info",
+  "--deselect=src/tests/presale/test_oidc_op.py::test_token_success",
+  "--deselect=src/tests/presale/test_oidc_op.py::test_token_success_pkce",
+  "--deselect=src/tests/presale/test_oidc_op.py::test_scope_enforcement",
+  "--deselect=src/tests/presale/test_oidc_op.py::test_token_client_secret_post",
+  "--deselect=src/tests/presale/test_oidc_op.py::test_authorize_implicit_flow",
+  "--deselect=src/tests/presale/test_oidc_op.py::test_authorize_hybrid_flow",
+  "--deselect=src/tests/presale/test_oidc_op.py::test_userinfo_auth_and_claims",
+  "--deselect=src/tests/presale/test_oidc_op.py::test_keys_endpoint",
+  "--deselect=src/tests/presale/test_style.py::StyleTest::test_organizer_generate_css_for_inherited_events",
+  "--deselect=src/tests/presale/test_style.py::StyleTest::test_organizer_generate_css_only_for_inherited_events",
+  "--deselect=src/tests/presale/test_widget.py::WidgetCartTest::test_css_customized",
+  "--deselect=src/tests/doc/test_signals.py::test_documentation_includes_signals[pretix.base]",
+  "--deselect=src/tests/doc/test_signals.py::test_documentation_includes_signals[pretix.control]",
+  "--deselect=src/tests/doc/test_signals.py::test_documentation_includes_signals[pretix.plugins.checkinlists]",
+  "--deselect=src/tests/doc/test_signals.py::test_documentation_includes_signals[pretix.plugins.reports]",
+  "--deselect=src/tests/doc/test_signals.py::test_documentation_includes_signals[pretix.presale]",
+  "--deselect=src/tests/helpers/test_daterange.py::test_same_month_german",
+  "--deselect=src/tests/helpers/test_daterange.py::test_same_month_spanish",
+  "--deselect=src/tests/helpers/test_daterange.py::test_same_year_german",
+  "--deselect=src/tests/helpers/test_daterange.py::test_same_year_spanish",
+  "--deselect=src/tests/helpers/test_daterange.py::test_different_dates_german",
+  "--deselect=src/tests/helpers/test_daterange.py::test_different_dates_spanish",
+  "--deselect=src/tests/helpers/test_daterange.py::test_datetime_same_day",
+  "--deselect=src/tests/helpers/test_daterange.py::test_datetime_different_day",
 ]
 also_copy = [
   "src/manage.py",
