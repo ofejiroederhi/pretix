@@ -183,6 +183,7 @@ pytest_add_cli_args_test_selection = [
 pytest_add_cli_args = [
   "-p",
   "no:sugar",
+  "--maxfail=20"
   "--deselect=src/tests/api/test_checkinrpc.py::test_reason_explanation_localization",
   "--deselect=src/tests/api/test_deviceauth.py::test_device_info_key_sets",
 ]
