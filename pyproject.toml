@@ -176,8 +176,17 @@ paths_to_mutate = [
   "src/pretix/plugins/statistics/",
   "src/pretix/plugins/stripe/",
 ]
+# Only run tests that cover the mutated modules (api.auth, base mgmt, paypal2, reports, statistics, stripe)
 pytest_add_cli_args_test_selection = [
-  "src/tests/",
+  "src/tests/api/test_auth.py",
+  "src/tests/api/test_oauth.py",
+  "src/tests/api/test_deviceauth.py",
+  "src/tests/api/test_checkin.py",
+  "src/tests/api/test_organizers.py",
+  "src/tests/base/",
+  "src/tests/control/test_auth.py",
+  "src/tests/control/test_devices.py",
+  "src/tests/plugins/",
 ]
 # No --maxfail so stats run and per-mutant runs execute the full suite (don't stop at first failure)
 pytest_add_cli_args = [
