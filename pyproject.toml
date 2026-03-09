@@ -177,16 +177,7 @@ paths_to_mutate = [
   "src/pretix/plugins/stripe/",
 ]
 pytest_add_cli_args_test_selection = [
-  "src/tests/api/test_checkin.py",
-  "src/tests/api/test_organizers.py",
-  "src/tests/base/test_export.py",
-  "src/tests/base/test_metrics.py",
-  "src/tests/base/test_models.py",
-  "src/tests/base/test_runperiodic.py",
-  "src/tests/control/test_auth.py",
-  "src/tests/control/test_devices.py",
-  "src/tests/plugins/paypal2/",
-  "src/tests/plugins/stripe/",
+  "src/tests/",
 ]
 pytest_add_cli_args = [
   "-p",
@@ -194,7 +185,6 @@ pytest_add_cli_args = [
   "--maxfail=1",
 ]
 also_copy = [
-  "conftest.py",
   "src/manage.py",
   "src/tests/ci_sqlite.cfg",
 ]
