@@ -189,6 +189,7 @@ pytest_add_cli_args_test_selection = [
   "src/tests/plugins/stripe/",
 ]
 pytest_add_cli_args = [
+  "--rootdir=.",
   "-p",
   "no:sugar",
   "--maxfail=1",
