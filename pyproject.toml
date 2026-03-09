@@ -153,9 +153,8 @@ changelog = "https://pretix.eu/about/en/blog/"
 include-package-data = true
 
 [tool.pytest.ini_options]
-# Required when pytest is run from repo root (e.g. mutmut); ensures Django and tests are importable
+# When pytest runs from repo root (e.g. mutmut), make Django and tests importable
 pythonpath = ["src"]
-asyncio_default_fixture_loop_scope = "function"
 DJANGO_SETTINGS_MODULE = "tests.settings"
 
 [tool.setuptools.dynamic]
@@ -194,6 +193,8 @@ pytest_add_cli_args = [
   "--maxfail=1",
 ]
 also_copy = [
+  "conftest.py",
+  "src/manage.py",
   "src/tests/ci_sqlite.cfg",
 ]
 max_stack_depth = 12

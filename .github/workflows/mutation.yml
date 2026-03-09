@@ -23,8 +23,7 @@ permissions:
 env:
   FORCE_COLOR: 1
   PRETIX_CONFIG_FILE: src/tests/ci_sqlite.cfg
-  # So mutmut's pytest subprocess finds Django and tests when run from repo root
-  PYTHONPATH: src
+  PYTHONPATH: ${{ github.workspace }}/src
   DJANGO_SETTINGS_MODULE: tests.settings
 
 jobs:
@@ -78,11 +77,7 @@ jobs:
           mkdir -p mutants/src/tests
 
       - name: Run mutation tests
-        run: |
-          export PYTHONPATH="${{ github.workspace }}/src"
-          export DJANGO_SETTINGS_MODULE=tests.settings
-          export PRETIX_CONFIG_FILE=src/tests/ci_sqlite.cfg
-          mutmut run "${{ matrix.mutmut_pattern }}"
+        run: mutmut run "${{ matrix.mutmut_pattern }}"
 
       - name: Export mutation summary
         if: always()
