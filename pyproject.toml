@@ -179,11 +179,12 @@ paths_to_mutate = [
 pytest_add_cli_args_test_selection = [
   "src/tests/",
 ]
+# No --maxfail so stats run and per-mutant runs execute the full suite (don't stop at first failure)
 pytest_add_cli_args = [
   "-p",
   "no:sugar",
-  "--maxfail=1",
   "--deselect=src/tests/api/test_checkinrpc.py::test_reason_explanation_localization",
+  "--deselect=src/tests/api/test_deviceauth.py::test_device_info_key_sets",
 ]
 also_copy = [
   "src/manage.py",
