@@ -114,6 +114,7 @@ dev = [
   "flake8==7.3.*",
   "freezegun",
   "isort==7.0.*",
+  "mutmut",
   "pep8-naming==0.15.*",
   "potypo",
   "pytest-asyncio>=0.24",
@@ -151,6 +152,12 @@ changelog = "https://pretix.eu/about/en/blog/"
 [tool.setuptools]
 include-package-data = true
 
+[tool.pytest.ini_options]
+# When pytest runs from repo root (e.g. mutmut), make Django and tests importable
+pythonpath = ["src"]
+DJANGO_SETTINGS_MODULE = "tests.settings"
+django_find_project = false
+
 [tool.setuptools.dynamic]
 version = {attr = "pretix.__version__"}
 
@@ -158,3 +165,53 @@ version = {attr = "pretix.__version__"}
 where = ["src"]
 include = ["pretix*"]
 namespaces = false
+
+[tool.mutmut]
+paths_to_mutate = [
+  "src/pretix/api/auth/",
+  "src/pretix/base/management/commands/",
+  "src/pretix/plugins/paypal2/",
+  "src/pretix/plugins/paypal2/client/core/",
+  "src/pretix/plugins/reports/",
+  "src/pretix/plugins/statistics/",
+  "src/pretix/plugins/stripe/",
+]
+# Only run tests that cover the mutated modules (api.auth, base mgmt, paypal2, reports, statistics, stripe)
+pytest_add_cli_args_test_selection = [
+  "src/tests/api/test_auth.py",
+  "src/tests/api/test_oauth.py",
+  "src/tests/api/test_deviceauth.py",
+  "src/tests/api/test_checkin.py",
+  "src/tests/api/test_organizers.py",
+  "src/tests/base/",
+  "src/tests/control/test_auth.py",
+  "src/tests/control/test_devices.py",
+  "src/tests/plugins/",
+]
+# No --maxfail so stats run and per-mutant runs execute the full suite (don't stop at first failure)
+# Deselect tests that fail in mutmut CI (encoding/locale env) so stats can complete
+pytest_add_cli_args = [
+  "-p",
+  "no:sugar",
+  "--maxfail=3000",
+  "--deselect=src/tests/api/test_checkinrpc.py::test_reason_explanation_localization",
+  "--deselect=src/tests/api/test_deviceauth.py::test_device_info_key_sets",
+  "--deselect=src/tests/base/test_orders.py::OrderCancelTests::test_cancel_paid_with_fee_change_secret",
+  "--deselect=src/tests/base/test_orders.py::OrderChangeManagerTests::test_cancel_success_changed_secret",
+  "--deselect=src/tests/base/test_orders.py::OrderChangeManagerTests::test_change_new_secret_by_scheme",
+  "--deselect=src/tests/base/test_orders.py::OrderChangeManagerTests::test_change_subevent_success_change_secret",
+  "--deselect=src/tests/base/test_orders.py::OrderChangeManagerTests::test_clear_out_order",
+  "--deselect=src/tests/base/test_orders.py::OrderChangeManagerTests::test_clear_out_order_change_secrets",
+  "--deselect=src/tests/base/test_orders.py::OrderChangeManagerTests::test_set_valid_until",
+  "--deselect=src/tests/base/test_secrets.py::test_force_invalidate[scheme1]",
+  "--deselect=src/tests/base/test_secrets.py::test_keep_same[scheme1]",
+  "--deselect=src/tests/base/test_secrets.py::test_change_if_required[scheme1]",
+  "--deselect=src/tests/base/test_secrets.py::test_change_if_invalid[scheme1]",
+  "--deselect=src/tests/plugins/sendmail/test_rules.py::test_sendmail_context_localization",
+]
+also_copy = [
+  "src/manage.py",
+  "src/tests/ci_sqlite.cfg",
+]
+max_stack_depth = 12
+mutate_only_covered_lines = true
