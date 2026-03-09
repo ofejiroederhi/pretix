@@ -74,10 +74,14 @@ jobs:
       - name: Prepare mutation workspace
         run: |
           rm -rf mutants .mutmut-cache
-          mkdir -p mutants/src/tests
+          mkdir -p mutants/src
+          cp -r src/pretix mutants/src/pretix
+          cp -r src/tests mutants/src/tests
+          cp src/manage.py mutants/src/manage.py
+          cp src/tests/ci_sqlite.cfg mutants/src/tests/ci_sqlite.cfg
 
       - name: Run mutation tests
-        run: env PRETIX_CONFIG_FILE=src/tests/ci_sqlite.cfg PYTHONPATH="${{ github.workspace }}/src" DJANGO_SETTINGS_MODULE=tests.settings mutmut run "${{ matrix.mutmut_pattern }}"
+        run: env PRETIX_CONFIG_FILE=src/tests/ci_sqlite.cfg PYTHONPATH="${{ github.workspace }}/mutants/src" DJANGO_SETTINGS_MODULE=tests.settings mutmut run "${{ matrix.mutmut_pattern }}"
 
       - name: Export mutation summary
         if: always()
