@@ -177,7 +177,7 @@ paths_to_mutate = [
   "src/pretix/plugins/statistics/",
   "src/pretix/plugins/stripe/",
 ]
-# Only run tests that cover the mutated modules (api.auth, base mgmt, paypal2, reports, statistics, stripe)
+# Overridden per job in CI (see mutation.yml matrix test_selection); local fallback
 pytest_add_cli_args_test_selection = [
   "src/tests",
 ]
@@ -239,6 +239,8 @@ pytest_add_cli_args = [
   "--deselect=src/tests/helpers/test_daterange.py::test_datetime_different_day",
 ]
 also_copy = [
+  "src/pretix",
+  "src/tests",
   "src/manage.py",
   "src/tests/ci_sqlite.cfg",
 ]
