@@ -156,6 +156,7 @@ include-package-data = true
 # When pytest runs from repo root (e.g. mutmut), make Django and tests importable
 pythonpath = ["src"]
 DJANGO_SETTINGS_MODULE = "tests.settings"
+django_find_project = false
 
 [tool.setuptools.dynamic]
 version = {attr = "pretix.__version__"}
