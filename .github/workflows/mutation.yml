@@ -1,12 +1,9 @@
 name: Mutation Tests
 
 on:
-  # workflow_dispatch:
-  # pull_request:
-  #   branches: [ master ]
-  on:
-  push:
+  workflow_dispatch:
   pull_request:
+    branches: [ master ]
     paths:
       - ".github/workflows/mutation.yml"
       - "pyproject.toml"
