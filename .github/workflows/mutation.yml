@@ -88,7 +88,13 @@ jobs:
         run: python manage.py check
 
       - name: Prepare mutation workspace
-        run: rm -rf mutants .mutmut-cache
+        run: |
+          rm -rf mutants .mutmut-cache
+          mkdir -p mutants/src
+          cp -r src/pretix mutants/src/pretix
+          cp -r src/tests mutants/src/tests
+          cp src/manage.py mutants/src/manage.py
+          cp src/tests/ci_sqlite.cfg mutants/src/tests/ci_sqlite.cfg
 
       - name: Set mutmut config for this target
         run: |
