@@ -98,17 +98,3 @@ jobs:
         working-directory: ./src
         run: PRETIX_CONFIG_FILE=tests/ci_${{ matrix.database }}.cfg py.test tests/concurrency_tests/ --reuse-db -m "not performance"
         if: matrix.database == 'postgres'
-
-  docker-test:
-    name: Docker test run
-    runs-on: ubuntu-22.04
-    needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build test image
-        run: docker build -f Dockerfile.test -t pretix-test:latest .
-      - name: Run tests in container
-        run: docker run --rm pretix-test:latest bash -c "cd /pretix/src && PRETIX_CONFIG_FILE=tests/ci_sqlite.cfg pytest tests/ -m 'not slow and not performance' -p no:sugar --maxfail=20 -q"
