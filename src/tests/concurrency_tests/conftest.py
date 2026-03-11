@@ -24,12 +24,14 @@ from datetime import datetime, timedelta
 import aiohttp
 import pytest
 import pytest_asyncio
+from django.contrib.sessions.backends.db import SessionStore
+from django.utils.crypto import get_random_string
 from django.utils.timezone import now
 from django_scopes import scopes_disabled
 from pytz import UTC
 
 from pretix.base.models import (
-    Device, Event, Item, Organizer, Quota, SeatingPlan,
+    CartPosition, Device, Event, Item, Organizer, Quota, SeatingPlan,
 )
 from pretix.base.models.devices import generate_api_token
 
@@ -136,6 +138,51 @@ def device(organizer):
         initialized=now(),
         api_token=generate_api_token()
     )
+
+
+def _make_cart_with_expired_position(event, item):
+    """Create a session with cart data and one expired CartPosition for checkout/confirm."""
+    cart_id = get_random_string(length=32)
+    store = SessionStore()
+    store['current_cart_event_{}'.format(event.pk)] = cart_id
+    store['carts'] = {
+        cart_id: {
+            'email': 'user@example.com',
+            'payments': [{
+                'id': 'bt',
+                'provider': 'banktransfer',
+                'max_value': None,
+                'min_value': None,
+                'multi_use_supported': False,
+                'info_data': {},
+            }],
+        }
+    }
+    store.save()
+    cp = CartPosition.objects.create(
+        event=event,
+        item=item,
+        cart_id=cart_id,
+        price=0,
+        listed_price=0,
+        price_after_voucher=0,
+        expires=now() - timedelta(minutes=10),
+    )
+    return (cp, store)
+
+
+@pytest.fixture
+@scopes_disabled()
+def cart1_expired(event, item):
+    """First cart with one expired position; tuple (CartPosition, SessionStore) for cookie session_key."""
+    return _make_cart_with_expired_position(event, item)
+
+
+@pytest.fixture
+@scopes_disabled()
+def cart2_expired(event, item):
+    """Second cart with one expired position; tuple (CartPosition, SessionStore) for cookie session_key."""
+    return _make_cart_with_expired_position(event, item)
 
 
 @pytest_asyncio.fixture
