@@ -45,6 +45,16 @@ from pretix.helpers.format import PlainHtmlAlternativeString, SafeFormatter
 
 logger = logging.getLogger('pretix.base.services.placeholders')
 
+# Sample data for email/placeholder previews when no real order exists (not used as secrets).
+_SAMPLE_ORDER_CODE = 'F8VVL'
+_SAMPLE_ORDER_SECRET = '6zzjnumtsx136ddy'
+_SAMPLE_ORDER_HASH = '98kusd8ofsj8dnkd'
+_SAMPLE_ORDERS_PREVIEW = [
+    {'code': 'F8VVL', 'secret': '6zzjnumtsx136ddy', 'hash': 'abcdefghi'},
+    {'code': 'HIDHK', 'secret': '98kusd8ofsj8dnkd', 'hash': 'jklmnopqr'},
+    {'code': 'OPKSB', 'secret': '09pjdksflosk3njd', 'hash': 'stuvwxy2z'},
+]
+
 
 class BaseTextPlaceholder:
     """
@@ -396,9 +406,9 @@ def base_placeholders(sender, **kwargs):
             ), lambda event: build_absolute_uri(
                 event,
                 'presale:event.order.open', kwargs={
-                    'order': 'F8VVL',
-                    'secret': '6zzjnumtsx136ddy',
-                    'hash': '98kusd8ofsj8dnkd'
+                    'order': _SAMPLE_ORDER_CODE,
+                    'secret': _SAMPLE_ORDER_SECRET,
+                    'hash': _SAMPLE_ORDER_HASH
                 }
             ),
         ),
@@ -416,9 +426,9 @@ def base_placeholders(sender, **kwargs):
             sample_url_func=lambda event: build_absolute_uri(
                 event,
                 'presale:event.order.open', kwargs={
-                    'order': 'F8VVL',
-                    'secret': '6zzjnumtsx136ddy',
-                    'hash': '98kusd8ofsj8dnkd'
+                    'order': _SAMPLE_ORDER_CODE,
+                    'secret': _SAMPLE_ORDER_SECRET,
+                    'hash': _SAMPLE_ORDER_HASH
                 }
             ),
             sample_text_func=lambda event: _("View order details"),
@@ -433,8 +443,8 @@ def base_placeholders(sender, **kwargs):
             ), lambda event: build_absolute_uri(
                 event,
                 'presale:event.order.modify', kwargs={
-                    'order': 'F8VVL',
-                    'secret': '6zzjnumtsx136ddy',
+                    'order': _SAMPLE_ORDER_CODE,
+                    'secret': _SAMPLE_ORDER_SECRET,
                 }
             ),
         ),
@@ -448,8 +458,8 @@ def base_placeholders(sender, **kwargs):
             ), lambda event: build_absolute_uri(
                 event,
                 'presale:event.order.change', kwargs={
-                    'order': 'F8VVL',
-                    'secret': '6zzjnumtsx136ddy',
+                    'order': _SAMPLE_ORDER_CODE,
+                    'secret': _SAMPLE_ORDER_SECRET,
                 }
             ),
         ),
@@ -463,8 +473,8 @@ def base_placeholders(sender, **kwargs):
             ), lambda event: build_absolute_uri(
                 event,
                 'presale:event.order.cancel', kwargs={
-                    'order': 'F8VVL',
-                    'secret': '6zzjnumtsx136ddy',
+                    'order': _SAMPLE_ORDER_CODE,
+                    'secret': _SAMPLE_ORDER_SECRET,
                 }
             ),
         ),
@@ -481,8 +491,8 @@ def base_placeholders(sender, **kwargs):
             lambda event: build_absolute_uri(
                 event,
                 'presale:event.order.position', kwargs={
-                    'order': 'F8VVL',
-                    'secret': '6zzjnumtsx136ddy',
+                    'order': _SAMPLE_ORDER_CODE,
+                    'secret': _SAMPLE_ORDER_SECRET,
                     'position': '123'
                 }
             ),
@@ -501,8 +511,8 @@ def base_placeholders(sender, **kwargs):
             sample_url_func=lambda event: build_absolute_uri(
                 event,
                 'presale:event.order.position', kwargs={
-                    'order': 'F8VVL',
-                    'secret': '6zzjnumtsx136ddy',
+                    'order': _SAMPLE_ORDER_CODE,
+                    'secret': _SAMPLE_ORDER_SECRET,
                     'position': '123'
                 }
             ),
@@ -519,8 +529,8 @@ def base_placeholders(sender, **kwargs):
             ), lambda event: build_absolute_uri(
                 event,
                 'presale:event.order.position.modify', kwargs={
-                    'order': 'F8VVL',
-                    'secret': '6zzjnumtsx136ddy',
+                    'order': _SAMPLE_ORDER_CODE,
+                    'secret': _SAMPLE_ORDER_SECRET,
                     'position': '123',
                 }
             ),
@@ -536,8 +546,8 @@ def base_placeholders(sender, **kwargs):
             ), lambda event: build_absolute_uri(
                 event,
                 'presale:event.order.position.change', kwargs={
-                    'order': 'F8VVL',
-                    'secret': '6zzjnumtsx136ddy',
+                    'order': _SAMPLE_ORDER_CODE,
+                    'secret': _SAMPLE_ORDER_SECRET,
                     'position': '123'
                 }
             ),
@@ -629,10 +639,7 @@ def base_placeholders(sender, **kwargs):
                         'hash': order['hash'],
                     }),
                 )
-                for order in [
-                    {'code': 'F8VVL', 'secret': '6zzjnumtsx136ddy', 'hash': 'abcdefghi'},
-                    {'code': 'HIDHK', 'secret': '98kusd8ofsj8dnkd', 'hash': 'jklmnopqr'},
-                    {'code': 'OPKSB', 'secret': '09pjdksflosk3njd', 'hash': 'stuvwxy2z'}
+                for order in _SAMPLE_ORDERS_PREVIEW
                 ]
             ),
             inline=False,
