@@ -365,7 +365,7 @@ def test_webhook_source_canceled_updates_payment_state_order_stays_pending(env, 
     and order remains PENDING (consistent state: no pending payment left in limbo).
     Addresses: payment cancelled by Stripe but order/payment state inconsistency (e.g. GitHub #1230).
     """
-    event, order = env[0], env[1]
+    _event, order = env[0], env[1]
     order.status = Order.STATUS_PENDING
     order.save(update_fields=['status'])
 
@@ -427,7 +427,7 @@ def test_webhook_charge_failed_marks_payment_failed(env, client, monkeypatch):
     When Stripe sends charge.failed for a pending payment, payment is marked failed.
     Financial logic / payment state consistency (issue-tracker: charge failures).
     """
-    event, order = env[0], env[1]
+    _event, order = env[0], env[1]
     order.status = Order.STATUS_PENDING
     order.save(update_fields=['status'])
 

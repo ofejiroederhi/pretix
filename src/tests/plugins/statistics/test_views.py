@@ -6,7 +6,6 @@ from datetime import datetime, timezone
 
 import pytest
 from django.test import Client
-from django.utils.timezone import now
 
 from pretix.base.models import Event, Organizer, Team, User
 

@@ -9,7 +9,7 @@ from django.utils.timezone import now
 from django_scopes import scopes_disabled
 
 from pretix.base.models import (
-    Event, Item, ItemCategory, Order, OrderPosition, Organizer, Quota, Voucher,
+    Event, Item, ItemCategory, Order, OrderPosition, Organizer, Quota,
 )
 
 pytestmark = [pytest.mark.unit, pytest.mark.django_db]

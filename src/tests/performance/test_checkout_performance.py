@@ -9,8 +9,6 @@ and API < 500 ms when the app is warmed up.
 import pytest
 from django.test import Client
 
-from pretix.base.models import Event, Organizer, Item, Quota
-
 
 @pytest.mark.performance
 @pytest.mark.django_db

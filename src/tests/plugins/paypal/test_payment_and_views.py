@@ -2,9 +2,6 @@
 # Tests for pretix.plugins.paypal payment provider and views.
 # Targets: payment.py (identifier, settings), views.py (redirect_view).
 #
-from decimal import Decimal
-from unittest.mock import MagicMock
-
 import pytest
 from django.utils.timezone import now
 
