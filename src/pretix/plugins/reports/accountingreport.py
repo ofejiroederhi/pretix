@@ -112,7 +112,7 @@ class ReportExporter(ReportlabExportMixin, BaseExporter):
                 f'{_("Event")}: {self.event.name} ({self.event.get_date_range_display()})'
             )
 
-        if form_data["date_range"]:
+        if form_data.get("date_range"):
             dt_start, df_end = resolve_timeframe_to_datetime_start_inclusive_end_exclusive(
                 now(), form_data["date_range"], self.timezone
             )
@@ -136,7 +136,7 @@ class ReportExporter(ReportlabExportMixin, BaseExporter):
                     )
                 )
 
-        if not form_data["no_testmode"]:
+        if not form_data.get("no_testmode", True):
             filters.append(_("Report includes test orders which may be deleted later!"))
 
         if self._transaction_qs(form_data, currency=None).filter(migrated=True).exists():
@@ -155,7 +155,7 @@ class ReportExporter(ReportlabExportMixin, BaseExporter):
             card__issuer=self.organizer,
             card__currency=currency,
         )
-        if form_data["date_range"] and not ignore_dates:
+        if form_data.get("date_range") and not ignore_dates:
             df_start, df_end = resolve_timeframe_to_datetime_start_inclusive_end_exclusive(
                 now(), form_data["date_range"], self.timezone
             )
@@ -163,7 +163,7 @@ class ReportExporter(ReportlabExportMixin, BaseExporter):
                 qs = qs.filter(datetime__gte=df_start)
             if df_end:
                 qs = qs.filter(datetime__lt=df_end)
-        if form_data["no_testmode"]:
+        if form_data.get("no_testmode", True):
             qs = qs.filter(card__testmode=False)
         return qs
 
@@ -175,7 +175,7 @@ class ReportExporter(ReportlabExportMixin, BaseExporter):
             qs = qs.filter(
                 order__event__currency=currency,
             )
-        if form_data["date_range"] and not ignore_dates:
+        if form_data.get("date_range") and not ignore_dates:
             df_start, df_end = resolve_timeframe_to_datetime_start_inclusive_end_exclusive(
                 now(), form_data["date_range"], self.timezone
             )
@@ -183,7 +183,7 @@ class ReportExporter(ReportlabExportMixin, BaseExporter):
                 qs = qs.filter(datetime__gte=df_start)
             if df_end:
                 qs = qs.filter(datetime__lt=df_end)
-        if form_data["no_testmode"]:
+        if form_data.get("no_testmode", True):
             qs = qs.filter(order__testmode=False)
         return qs
 
@@ -196,7 +196,7 @@ class ReportExporter(ReportlabExportMixin, BaseExporter):
                 OrderPayment.PAYMENT_STATE_REFUNDED,
             ),
         )
-        if form_data["date_range"] and not ignore_dates:
+        if form_data.get("date_range") and not ignore_dates:
             (
                 df_start,
                 df_end,
@@ -207,7 +207,7 @@ class ReportExporter(ReportlabExportMixin, BaseExporter):
                 qs = qs.filter(payment_date__gte=df_start)
             if df_end:
                 qs = qs.filter(payment_date__lt=df_end)
-        if form_data["no_testmode"]:
+        if form_data.get("no_testmode", True):
             qs = qs.filter(order__testmode=False)
         return qs
 
@@ -217,7 +217,7 @@ class ReportExporter(ReportlabExportMixin, BaseExporter):
             order__event__currency=currency,
             state=OrderRefund.REFUND_STATE_DONE,
         )
-        if form_data["date_range"] and not ignore_dates:
+        if form_data.get("date_range") and not ignore_dates:
             df_start, df_end = resolve_timeframe_to_datetime_start_inclusive_end_exclusive(
                 now(), form_data["date_range"], self.timezone
             )
@@ -225,7 +225,7 @@ class ReportExporter(ReportlabExportMixin, BaseExporter):
                 qs = qs.filter(execution_date__gte=df_start)
             if df_end:
                 qs = qs.filter(execution_date__lt=df_end)
-        if form_data["no_testmode"]:
+        if form_data.get("no_testmode", True):
             qs = qs.filter(order__testmode=False)
         return qs
 

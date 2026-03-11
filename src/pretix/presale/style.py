@@ -205,11 +205,14 @@ def get_theme_vars_css(obj, widget=False):
     if widget:
         sassrules.append("$widget: true;")
 
-    with open(finders.find("pretixbase/scss/_theme_variables.scss"), "r") as f:
+    theme_vars_path = finders.find("pretixbase/scss/_theme_variables.scss")
+    with open(theme_vars_path, "r") as f:
         source_scss = f.read()
         sassrules.append(source_scss)
 
-    sassdir = os.path.join(settings.STATIC_ROOT, "pretixbase/scss")
+    # Use the directory of the resolved theme file so @import "_contrast.scss" works
+    # when STATIC_ROOT does not contain the source scss (e.g. in tests/Docker).
+    sassdir = os.path.dirname(theme_vars_path)
     sassrule = "\n".join(sassrules)
     if not sassrule.strip():
         return ""

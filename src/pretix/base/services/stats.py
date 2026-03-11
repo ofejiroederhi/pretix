@@ -325,4 +325,10 @@ def order_overview(
     for l in states.keys():
         total['num'][l] = tuplesum(c.num[l] for c, i in items_by_category)
 
+    # When there are no items/fees, tuplesum([]) returns () which breaks OverviewReport._table_story.
+    if not items_by_category:
+        empty = (0, Decimal('0'), Decimal('0'))
+        total['num'] = {l: empty for l in states.keys()}
+        total['num']['total'] = empty
+
     return items_by_category, total

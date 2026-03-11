@@ -102,6 +102,23 @@ def event3(organizer, meta_prop):
 
 @pytest.fixture
 @scopes_disabled()
+def event_with_reports(organizer, meta_prop):
+    """Event with reports plugin enabled for pdfreport/accountingreport API tests."""
+    e = Event.objects.create(
+        organizer=organizer,
+        name="Dummy Reports",
+        slug="dummy-reports",
+        date_from=datetime(2017, 12, 27, 10, 0, 0, tzinfo=timezone.utc),
+        plugins="pretix.plugins.banktransfer,pretix.plugins.ticketoutputpdf,pretix.plugins.reports",
+        is_public=True,
+    )
+    e.meta_values.create(property=meta_prop, value="Conference")
+    e.settings.timezone = "Europe/Berlin"
+    return e
+
+
+@pytest.fixture
+@scopes_disabled()
 def team(organizer):
     return Team.objects.create(
         organizer=organizer,

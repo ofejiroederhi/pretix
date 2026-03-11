@@ -428,18 +428,25 @@ def source_webhook(event, event_json, source_id, rso):
             prov = payment.payment_provider
             prov._init_api()
 
+        status = src.get('status') if isinstance(src, dict) else getattr(src, 'status', None)
+
         order.log_action('pretix.plugins.stripe.event', data=event_json)
-        go = (event_json['type'] == 'source.chargeable' and
-              payment.state in (OrderPayment.PAYMENT_STATE_PENDING, OrderPayment.PAYMENT_STATE_CREATED) and
-              src.status == 'chargeable')
+        go = (
+            event_json['type'] == 'source.chargeable'
+            and payment.state in (OrderPayment.PAYMENT_STATE_PENDING, OrderPayment.PAYMENT_STATE_CREATED)
+            and status == 'chargeable'
+        )
         if go:
             try:
                 prov._charge_source(None, source_id, payment)
             except PaymentException:
                 logger.exception('Webhook error')
-        elif src.status == 'failed':
+        elif status == 'failed':
             payment.fail(info=str(src))
-        elif src.status == 'canceled' and payment.state in (OrderPayment.PAYMENT_STATE_PENDING, OrderPayment.PAYMENT_STATE_CREATED):
+        elif status == 'canceled' and payment.state in (
+            OrderPayment.PAYMENT_STATE_PENDING,
+            OrderPayment.PAYMENT_STATE_CREATED,
+        ):
             payment.info = str(src)
             payment.state = OrderPayment.PAYMENT_STATE_CANCELED
             payment.save()

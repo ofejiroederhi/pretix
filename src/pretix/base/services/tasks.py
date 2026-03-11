@@ -94,8 +94,11 @@ class EventTask(app.Task):
             kwargs['event'] = event
         elif 'event' in kwargs:
             event_id = kwargs.get('event')
-            with scopes_disabled():
-                event = Event.objects.select_related('organizer').get(pk=event_id)
+            if isinstance(event_id, Event):
+                event = event_id
+            else:
+                with scopes_disabled():
+                    event = Event.objects.select_related('organizer').get(pk=event_id)
             kwargs['event'] = event
         else:
             args = list(args)
@@ -119,8 +122,11 @@ class OrganizerTask(app.Task):
             kwargs['organizer'] = organizer
         elif 'organizer' in kwargs:
             organizer_id = kwargs.get('organizer')
-            with scopes_disabled():
-                organizer = Organizer.objects.get(pk=organizer_id)
+            if isinstance(organizer_id, Organizer):
+                organizer = organizer_id
+            else:
+                with scopes_disabled():
+                    organizer = Organizer.objects.get(pk=organizer_id)
             kwargs['organizer'] = organizer
         else:
             args = list(args)

@@ -34,7 +34,7 @@
 
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.utils.translation import get_language, pgettext_lazy
+from django.utils.translation import get_language, pgettext
 
 from pretix.helpers.templatetags.date_fast import date_fast as _date
 
@@ -51,7 +51,7 @@ def daterange(df, dt, as_html=False):
             base_format = format_html("<time datetime=\"{}\">{{}}</time>{{}}<time datetime=\"{}\">{{}}</time>", _date(df, "Y-m-d"), _date(dt, "Y-m-d"))
             until = format_html(
                 " <span aria-hidden=\"true\">–</span><span class=\"sr-only\"> {until} </span> ",
-                until=pgettext_lazy("timerange", "until")
+                until=pgettext("timerange", "until")
             )
         else:
             base_format = "{}{}{}"
@@ -123,7 +123,7 @@ def datetimerange(df, dt, as_html=False):
         base_format = format_html("<time datetime=\"{}\">{{}}</time>{{}}<time datetime=\"{}\">{{}}</time>", _date(df, "Y-m-d H:i"), _date(dt, "Y-m-d H:i"))
         until = format_html(
             " <span aria-hidden=\"true\">–</span><span class=\"sr-only\"> {until} </span> ",
-            until=pgettext_lazy("timerange", "until")
+            until=pgettext("timerange", "until")
         )
     else:
         base_format = "{}{}{}"

@@ -290,6 +290,50 @@ def test_org_level_export(token_client, organizer, team, event):
     assert resp.status_code == 404
 
 
+@pytest.mark.django_db(transaction=True)
+def test_run_pdfreport_success(token_client, organizer, team, event_with_reports):
+    """E2E API: event-level pdfreport exporter returns 202 and PDF download."""
+    resp = token_client.get(
+        '/api/v1/organizers/{}/events/{}/exporters/'.format(organizer.slug, event_with_reports.slug)
+    )
+    assert resp.status_code == 200
+    identifiers = [r['identifier'] for r in resp.data['results']]
+    assert 'pdfreport' in identifiers
+
+    resp = token_client.post(
+        '/api/v1/organizers/{}/events/{}/exporters/pdfreport/run/'.format(
+            organizer.slug, event_with_reports.slug
+        ),
+        data={},
+        format='json',
+    )
+    assert resp.status_code == 202
+    assert 'download' in resp.data
+    resp2 = token_client.get('/' + resp.data['download'].split('/', 3)[3])
+    assert resp2.status_code == 200
+    assert resp2.getvalue()[:4] == b'%PDF'
+
+
+@pytest.mark.django_db(transaction=True)
+def test_run_accountingreport_success(token_client, organizer, team, event_with_reports):
+    """E2E API: organizer-level accountingreport exporter returns 202 and PDF download."""
+    resp = token_client.get('/api/v1/organizers/{}/exporters/'.format(organizer.slug))
+    assert resp.status_code == 200
+    identifiers = [r['identifier'] for r in resp.data['results']]
+    assert 'accountingreport' in identifiers
+
+    resp = token_client.post(
+        '/api/v1/organizers/{}/exporters/accountingreport/run/'.format(organizer.slug),
+        data={'no_testmode': True},
+        format='json',
+    )
+    assert resp.status_code == 202
+    assert 'download' in resp.data
+    resp2 = token_client.get('/' + resp.data['download'].split('/', 3)[3])
+    assert resp2.status_code == 200
+    assert resp2.getvalue()[:4] == b'%PDF'
+
+
 @pytest.fixture
 def event_scheduled_export(event, user):
     e = event.scheduled_exports.create(

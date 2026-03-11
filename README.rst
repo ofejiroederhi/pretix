@@ -38,6 +38,12 @@ repository. Private support via email or phone is only offered to customers of o
 Enterprise offerings. If you are interested in commercial support, hosting services or supporting this project
 financially, please go to `pretix.eu`_ or contact us at support@pretix.eu.
 
+Testing
+-------
+Tests are run with pytest from the ``src/`` directory. See **TESTING.md** for how to run unit,
+integration, E2E, concurrency, and performance tests; coverage is enforced at 70% in CI.
+New code should include tests; critical paths use test-first (TDD) where appropriate.
+
 Contributing
 ------------
 If you want to contribute to pretix, please read the `developer documentation`_
