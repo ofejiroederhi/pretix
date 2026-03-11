@@ -353,3 +353,115 @@ def test_webhook_global_legacy_reference(env, client, monkeypatch):
     assert order.status == Order.STATUS_PAID
     with scopes_disabled():
         assert list(order.payments.all()) == [payment]
+
+
+# --- Issue-tracker driven: payment cancellation leaves order in consistent state ---
+
+
+@pytest.mark.django_db
+def test_webhook_source_canceled_updates_payment_state_order_stays_pending(env, client, monkeypatch):
+    """
+    When Stripe sends source.canceled for the only pending payment, payment is marked canceled
+    and order remains PENDING (consistent state: no pending payment left in limbo).
+    Addresses: payment cancelled by Stripe but order/payment state inconsistency (e.g. GitHub #1230).
+    """
+    event, order = env[0], env[1]
+    order.status = Order.STATUS_PENDING
+    order.save(update_fields=['status'])
+
+    source_id = 'src_canceled_123'
+    mock_source = {
+        'id': source_id,
+        'object': 'source',
+        'status': 'canceled',
+        'type': 'card',
+        'amount': 1337,
+        'currency': 'eur',
+        'metadata': {'event': str(event.pk), 'order': str(order.pk)},
+    }
+
+    def retrieve_source(sid, **kwargs):
+        return mock_source
+
+    monkeypatch.setattr("stripe.Source.retrieve", retrieve_source)
+
+    with scopes_disabled():
+        payment = order.payments.create(
+            provider='stripe',
+            amount=order.total,
+            info=json.dumps(mock_source),
+            state=OrderPayment.PAYMENT_STATE_PENDING,
+        )
+        ReferencedStripeObject.objects.create(
+            order=order, payment=payment, reference=source_id,
+        )
+
+    client.post(
+        '/dummy/dummy/stripe/webhook/',
+        json.dumps({
+            "id": "evt_src_canceled",
+            "object": "event",
+            "api_version": "2016-03-07",
+            "created": 1472729052,
+            "data": {
+                "object": {
+                    "id": source_id,
+                    "object": "source",
+                    "status": "canceled",
+                }
+            },
+            "type": "source.canceled",
+        }),
+        content_type='application_json',
+    )
+
+    payment.refresh_from_db()
+    order.refresh_from_db()
+    assert payment.state == OrderPayment.PAYMENT_STATE_CANCELED
+    assert order.status == Order.STATUS_PENDING
+
+
+@pytest.mark.django_db
+def test_webhook_charge_failed_marks_payment_failed(env, client, monkeypatch):
+    """
+    When Stripe sends charge.failed for a pending payment, payment is marked failed.
+    Financial logic / payment state consistency (issue-tracker: charge failures).
+    """
+    order = env[1]
+    order.status = Order.STATUS_PENDING
+    order.save(update_fields=['status'])
+
+    charge = get_test_charge(order)
+    charge['status'] = 'failed'
+    charge['failure_message'] = 'card_declined'
+    charge['amount_refunded'] = 0
+    charge['refunds'] = {'object': 'list', 'data': [], 'total_count': 0}
+
+    monkeypatch.setattr("stripe.Charge.retrieve", lambda *args, **kwargs: charge)
+
+    with scopes_disabled():
+        payment = order.payments.create(
+            provider='stripe',
+            amount=order.total,
+            info=json.dumps(charge),
+            state=OrderPayment.PAYMENT_STATE_PENDING,
+        )
+        ReferencedStripeObject.objects.create(
+            order=order, payment=payment, reference=charge['id'],
+        )
+
+    client.post(
+        '/dummy/dummy/stripe/webhook/',
+        json.dumps({
+            "id": "evt_charge_failed",
+            "object": "event",
+            "data": {"object": {"id": charge['id'], "object": "charge"}},
+            "type": "charge.failed",
+        }),
+        content_type='application_json',
+    )
+
+    payment.refresh_from_db()
+    order.refresh_from_db()
+    assert payment.state == OrderPayment.PAYMENT_STATE_FAILED
+    assert order.status == Order.STATUS_PENDING

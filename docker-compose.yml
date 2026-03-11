@@ -1,0 +1,65 @@
+# pretix with PostgreSQL and Redis (Docker on Windows)
+# Usage: docker compose up -d
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pretix}
+      POSTGRES_USER: ${POSTGRES_USER:-pretix}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pretix_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pretix -d pretix"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - pretix_redis_data:/data
+
+  pretix:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pretix-custom:latest
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "127.0.0.1:8345:80"
+    volumes:
+      - pretix_data:/data
+      - "${PRETIX_CONFIG_DIR:-C:/pretix/config}:/etc/pretix:ro"
+    environment:
+      AUTOMIGRATE: "yes"
+
+  test:
+    profiles: ["test"]
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/pretix
+    working_dir: /pretix/src
+    environment:
+      PRETIX_CONFIG_FILE: tests/ci_sqlite.cfg
+    stdin_open: false
+    tty: false
+    command: >
+      pytest -n 8 -p no:sugar
+      --cov=pretix --cov-report=term-missing --cov-report=xml --cov-report=html
+      tests
+
+volumes:
+  pretix_postgres_data:
+  pretix_redis_data:
+  pretix_data:

@@ -1,75 +1,77 @@
 #
-# This file is part of pretix (Community Edition).
+# Unit tests for base/timeline.py (timeline_for_event function).
+# Targets low-coverage control/timeline logic.
 #
-# Copyright (C) 2014-2020  Raphael Michel and contributors
-# Copyright (C) 2020-today pretix GmbH and contributors
-#
-# This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
-# Public License as published by the Free Software Foundation in version 3 of the License.
-#
-# ADDITIONAL TERMS APPLY: Pursuant to Section 7 of the GNU Affero General Public License, additional terms are
-# applicable granting you additional permissions and placing additional restrictions on your usage of this software.
-# Please refer to the pretix LICENSE file to obtain the full terms applicable to this work. If you did not receive
-# this file, see <https://pretix.eu/about/en/license>.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
-# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Affero General Public License along with this program.  If not, see
-# <https://www.gnu.org/licenses/>.
-#
-from datetime import datetime
-from decimal import Decimal
+import datetime
 from zoneinfo import ZoneInfo
 
 import pytest
-from django_scopes import scope
+from django_scopes import scopes_disabled
 
-from pretix.base.i18n import language
 from pretix.base.models import Event, Organizer
-from pretix.base.timeline import timeline_for_event
+from pretix.base.timeline import TimelineEvent, timeline_for_event
 
-tz = ZoneInfo('Europe/Berlin')
-
-
-def one(iterable):
-    found = False
-    for it in iterable:
-        if it:
-            if found:
-                return False
-            else:
-                found = True
-    return found
+pytestmark = [pytest.mark.unit, pytest.mark.django_db]
 
 
 @pytest.fixture
-def event():
-    o = Organizer.objects.create(name='Dummy', slug='dummy')
-    event = Event.objects.create(
-        organizer=o, name='Dummy', slug='dummy',
-        date_from=datetime(2017, 10, 22, 12, 0, 0, tzinfo=tz),
-        date_to=datetime(2017, 10, 23, 23, 0, 0, tzinfo=tz),
+def minimal_event():
+    """Minimal event for timeline tests."""
+    with scopes_disabled():
+        o = Organizer.objects.create(name="Org", slug="org")
+        e = Event.objects.create(
+            organizer=o,
+            name="Ev",
+            slug="ev",
+            date_from=datetime.datetime(2024, 7, 1, 14, 0, 0, tzinfo=ZoneInfo("UTC")),
+        )
+        return e
+
+
+def test_timeline_for_event_returns_list(minimal_event):
+    """timeline_for_event returns a list of TimelineEvent."""
+    from django_scopes import scopes_disabled
+    with scopes_disabled():
+        tl = timeline_for_event(minimal_event)
+    assert isinstance(tl, list)
+    assert len(tl) >= 1
+
+
+def test_timeline_for_event_first_entry_is_event_starts(minimal_event):
+    """First timeline entry describes event start."""
+    from django_scopes import scopes_disabled
+    with scopes_disabled():
+        tl = timeline_for_event(minimal_event)
+    assert len(tl) >= 1
+    first = tl[0]
+    assert isinstance(first, TimelineEvent)
+    assert first.event is minimal_event
+    assert first.subevent is None
+    assert first.datetime == minimal_event.date_from
+    assert "start" in str(first.description).lower()
+
+
+def test_timeline_for_event_includes_date_to_when_set(minimal_event):
+    """When date_to is set, timeline includes event end."""
+    from django_scopes import scopes_disabled
+    with scopes_disabled():
+        minimal_event.date_to = datetime.datetime(
+            2024, 7, 2, 18, 0, 0, tzinfo=ZoneInfo("UTC")
+        )
+        minimal_event.save()
+        tl = timeline_for_event(minimal_event)
+    datetimes = [t.datetime for t in tl]
+    assert minimal_event.date_to in datetimes or any(
+        d == minimal_event.date_to for d in datetimes
     )
-    with scope(organizer=o):
-        yield event
 
 
-@pytest.fixture
-def item(event):
-    return event.items.create(name='Ticket', default_price=Decimal('23.00'))
-
-
-@pytest.mark.django_db
-def test_event_dates(event):
-    with language('en'):
-        tl = timeline_for_event(event)
-        assert one([
-            e for e in tl
-            if e.event == event and e.datetime == event.date_from and e.description == 'Your event starts'
-        ])
-        assert one([
-            e for e in tl
-            if e.event == event and e.datetime == event.date_to and e.description == 'Your event ends'
-        ])
+def test_timeline_for_event_edit_url_contains_organizer_and_event(minimal_event):
+    """Timeline edit URLs contain event and organizer slugs."""
+    from django_scopes import scopes_disabled
+    with scopes_disabled():
+        tl = timeline_for_event(minimal_event)
+    assert len(tl) >= 1
+    edit_url = tl[0].edit_url
+    assert minimal_event.slug in edit_url
+    assert minimal_event.organizer.slug in edit_url

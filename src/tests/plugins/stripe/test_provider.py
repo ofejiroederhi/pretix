@@ -336,3 +336,16 @@ def test_refund_unavailable(env, factory, monkeypatch):
         prov.execute_refund(refund)
     refund.refresh_from_db()
     assert refund.state != OrderRefund.REFUND_STATE_DONE
+
+
+@pytest.mark.django_db
+def test_stripe_redirect_view_bad_signature(env, factory):
+    """Stripe redirect_view returns 400 when data signature is invalid."""
+    from pretix.plugins.stripe.views import redirect_view
+
+    event, order = env
+    request = factory.get("/stripe/redirect/", {"data": "invalid-signature"})
+    request.event = event
+    response = redirect_view(request, organizer=event.organizer.slug, event=event.slug)
+    assert response.status_code == 400
+    assert "Invalid" in response.content.decode()

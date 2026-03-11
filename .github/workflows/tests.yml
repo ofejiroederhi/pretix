@@ -70,7 +70,7 @@ jobs:
         run: make all compress
       - name: Run tests
         working-directory: ./src
-        run: PRETIX_CONFIG_FILE=tests/ci_${{ matrix.database }}.cfg py.test -n 3 -p no:sugar --cov=./ --cov-report=xml tests --maxfail=100
+        run: PRETIX_CONFIG_FILE=tests/ci_${{ matrix.database }}.cfg py.test -n 3 -p no:sugar --cov=./ --cov-report=xml --cov-fail-under=70 tests --maxfail=100
       - name: Run concurrency tests
         working-directory: ./src
         run: PRETIX_CONFIG_FILE=tests/ci_${{ matrix.database }}.cfg py.test tests/concurrency_tests/ --reuse-db

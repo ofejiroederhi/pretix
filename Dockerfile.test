@@ -1,0 +1,20 @@
+# Test image: deps at build time, code mounted at run time.
+# Build once, run tests many times. Use: docker compose run --rm test
+FROM python:3.11-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gettext \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /pretix
+
+RUN pip install --no-cache-dir uv
+
+# Copy dependency metadata and build backend first (cacheable layer)
+COPY pyproject.toml setup.cfg setup.py README.rst /pretix/
+COPY _build /pretix/_build
+COPY src /pretix/src
+
+# Install dev dependencies once at build time
+RUN uv pip install --system -e ".[dev]"

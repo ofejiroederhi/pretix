@@ -37,6 +37,14 @@ CRASHED_ITEMS = set()
 
 @pytest.hookimpl(trylast=True)
 def pytest_configure(config):
+    """Register custom markers for test orchestration (unit, integration, e2e, slow, performance)."""
+    config.addinivalue_line("markers", "unit: Fast unit tests (no full stack).")
+    config.addinivalue_line("markers", "integration: Integration tests (DB, session, multi-component).")
+    config.addinivalue_line("markers", "e2e: End-to-end workflow tests (checkout, payment, check-in).")
+    config.addinivalue_line("markers", "slow: Slow or resource-heavy tests.")
+    config.addinivalue_line("markers", "performance: Performance and load tests (quota contention, concurrency).")
+    config.addinivalue_line("markers", "security: Security-focused tests (OWASP, payment integrity, auth).")
+
     """
     Somehow, somewhere, our test suite causes a segfault in SQLite in the past, but only when run
     on CI in full. Therefore, we monkeypatch pytest-xdist to retry segfaulted

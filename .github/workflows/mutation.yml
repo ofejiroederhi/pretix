@@ -39,18 +39,32 @@ jobs:
         include:
           - module_name: api-auth
             mutmut_pattern: "pretix.api.auth*"
+            paths_to_mutate: "src/pretix/api/auth/"
+            test_selection: "src/tests/api/ src/tests/control/test_auth.py src/tests/control/test_devices.py"
           - module_name: base-management-commands
             mutmut_pattern: "pretix.base.management.commands*"
+            paths_to_mutate: "src/pretix/base/management/commands/"
+            test_selection: "src/tests/base/"
           - module_name: plugins-statistics
             mutmut_pattern: "pretix.plugins.statistics*"
+            paths_to_mutate: "src/pretix/plugins/statistics/"
+            test_selection: "src/tests/base/ src/tests/plugins/"
           - module_name: plugins-reports
             mutmut_pattern: "pretix.plugins.reports*"
+            paths_to_mutate: "src/pretix/plugins/reports/"
+            test_selection: "src/tests/base/ src/tests/plugins/"
           - module_name: plugins-paypal2
             mutmut_pattern: "pretix.plugins.paypal2*"
+            paths_to_mutate: "src/pretix/plugins/paypal2/"
+            test_selection: "src/tests/plugins/paypal2/ src/tests/base/ src/tests/presale/"
           - module_name: plugins-paypal2-client-core
             mutmut_pattern: "pretix.plugins.paypal2.client.core*"
+            paths_to_mutate: "src/pretix/plugins/paypal2/client/core/"
+            test_selection: "src/tests/plugins/paypal2/ src/tests/base/"
           - module_name: plugins-stripe
             mutmut_pattern: "pretix.plugins.stripe*"
+            paths_to_mutate: "src/pretix/plugins/stripe/"
+            test_selection: "src/tests/plugins/stripe/ src/tests/base/ src/tests/presale/"
     name: Mutation (${{ matrix.module_name }})
 
     steps:
@@ -81,6 +95,32 @@ jobs:
           cp -r src/tests mutants/src/tests
           cp src/manage.py mutants/src/manage.py
           cp src/tests/ci_sqlite.cfg mutants/src/tests/ci_sqlite.cfg
+
+      - name: Set mutmut config for this target
+        run: |
+          python - <<'PY'
+          import re
+          paths = "${{ matrix.paths_to_mutate }}"
+          tests = "${{ matrix.test_selection }}".split()
+          paths_toml = f'paths_to_mutate = [\n  "{paths}",\n]'
+          tests_toml = "pytest_add_cli_args_test_selection = [\n  " + ",\n  ".join(f'"{t}"' for t in tests) + ",\n]"
+          with open("pyproject.toml", "r") as f:
+              content = f.read()
+          content = re.sub(
+              r'paths_to_mutate\s*=\s*\[[\s\S]*?\n\s*\],?',
+              paths_toml,
+              content,
+              count=1,
+          )
+          content = re.sub(
+              r'pytest_add_cli_args_test_selection\s*=\s*\[[\s\S]*?\n\s*\],?',
+              tests_toml,
+              content,
+              count=1,
+          )
+          with open("pyproject.toml", "w") as f:
+              f.write(content)
+          PY
 
       - name: Run mutation tests
         run: env PRETIX_CONFIG_FILE=src/tests/ci_sqlite.cfg PYTHONPATH="${{ github.workspace }}/mutants/src" DJANGO_SETTINGS_MODULE=tests.settings mutmut run "${{ matrix.mutmut_pattern }}"

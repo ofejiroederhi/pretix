@@ -165,6 +165,29 @@ def test_mark_paid(env, job):
 
 
 @pytest.mark.django_db
+def test_import_unmatchable_reference_does_not_crash(env, job):
+    """
+    Bank import with a reference that matches no order completes without error and
+    transaction is marked NOMATCH (issue-tracker: bank import detection failures).
+    """
+    event, user, o1, o2 = env
+    initial_status = o1.status
+    process_banktransfers(job, [{
+        'payer': 'Unknown Payer',
+        'reference': 'Internal transfer no order code',
+        'date': '2016-01-26',
+        'amount': '23.00'
+    }])
+    o1.refresh_from_db()
+    assert o1.status == initial_status
+    with scopes_disabled():
+        from pretix.plugins.banktransfer.models import BankTransaction
+        bt = BankTransaction.objects.filter(event=event, import_job_id=job).first()
+        assert bt is not None
+        assert bt.state == BankTransaction.STATE_NOMATCH
+
+
+@pytest.mark.django_db
 def test_underpaid(env, job):
     djmail.outbox = []
     process_banktransfers(job, [{
