@@ -6,8 +6,8 @@ import pytest
 from django.utils.timezone import now
 from django_scopes import scopes_disabled
 
-from pretix.base.models import Event, Organizer
 from pretix.base.exporters.events import EventDataExporter
+from pretix.base.models import Event, Organizer
 
 pytestmark = [pytest.mark.django_db, pytest.mark.unit]
 

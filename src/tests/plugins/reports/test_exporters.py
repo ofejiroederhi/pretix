@@ -12,14 +12,9 @@ from django_scopes import scope
 from freezegun import freeze_time
 
 from pretix.base.models import (
-    Event,
-    Organizer,
-    ScheduledEventExport,
-    ScheduledOrganizerExport,
-    User,
+    Event, Organizer, ScheduledEventExport, ScheduledOrganizerExport, User,
 )
 from pretix.base.services.export import run_scheduled_exports
-
 
 # --- Fixtures ---
 

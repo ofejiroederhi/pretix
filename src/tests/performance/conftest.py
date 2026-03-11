@@ -2,8 +2,8 @@
 # Fixtures for performance tests (checkout, API timing).
 # Defines organizer, event, item, quota so tests/performance/ does not depend on tests/api/conftest.py.
 #
-from datetime import datetime, timezone
 import time
+from datetime import datetime, timezone
 
 import pytest
 from django_scopes import scopes_disabled

@@ -13,11 +13,10 @@ Test Coverage:
 """
 
 import pytest
-from django.test import Client
 from django.contrib.auth import get_user_model
+from django.test import Client
 
 from pretix.base.models import Event
-
 
 User = get_user_model()
 

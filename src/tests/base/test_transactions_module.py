@@ -2,15 +2,13 @@
 # Tests for the order-transaction dirty-tracking module (base/models/_transactions.py).
 # Added to improve coverage of a high-risk financial path identified via coverage.xml.
 #
-import pytest
 from unittest.mock import patch
 
+import pytest
+
 from pretix.base.models._transactions import (
-    DirtyTransactionsForOrderException,
-    _check_for_dirty_orders,
-    _transactions_mark_order_clean,
-    dirty_transactions,
-    _fail,
+    DirtyTransactionsForOrderException, _check_for_dirty_orders, _fail,
+    _transactions_mark_order_clean, dirty_transactions,
 )
 
 pytestmark = [pytest.mark.unit]

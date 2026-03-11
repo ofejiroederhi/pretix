@@ -6,12 +6,10 @@ import pytest
 from django.utils.timezone import now
 from django_scopes import scopes_disabled
 
-from pretix.base.models import Event, Item, ItemCategory, Organizer, Quota, Voucher
-from pretix.base.services.locking import (
-    KEY_SPACES,
-    NoLockManager,
-    pg_lock_key,
+from pretix.base.models import (
+    Event, Item, ItemCategory, Organizer, Quota, Voucher,
 )
+from pretix.base.services.locking import KEY_SPACES, NoLockManager, pg_lock_key
 
 pytestmark = [pytest.mark.unit, pytest.mark.django_db]
 
@@ -90,6 +88,7 @@ def test_no_lock_manager_exit_propagates_exception():
 def test_lock_objects_outside_atomic_raises(event_and_quota):
     """lock_objects raises RuntimeError when not in atomic block."""
     from unittest.mock import patch
+
     from pretix.base.services.locking import lock_objects
     _, quota = event_and_quota
     with patch("pretix.base.services.locking.connection") as mock_conn:

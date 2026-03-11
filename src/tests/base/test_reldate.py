@@ -9,11 +9,7 @@ import pytest
 from django.utils.timezone import now
 from django_scopes import scopes_disabled
 
-from pretix.base.reldate import (
-    BASE_CHOICES,
-    RelativeDate,
-    RelativeDateWrapper,
-)
+from pretix.base.reldate import BASE_CHOICES, RelativeDate, RelativeDateWrapper
 
 pytestmark = [pytest.mark.unit, pytest.mark.django_db]
 

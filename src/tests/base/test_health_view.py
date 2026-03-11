@@ -3,9 +3,10 @@
 # Added to improve coverage of a high-risk reliability path identified via coverage.xml.
 # Calls the view directly to avoid multidomain middleware (which expects orga, event, mode from cache).
 #
+from unittest.mock import patch
+
 import pytest
 from django.test import RequestFactory
-from unittest.mock import patch
 
 from pretix.base.views.health import healthcheck
 

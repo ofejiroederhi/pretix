@@ -6,7 +6,6 @@ import pytest
 from django.utils.timezone import now
 
 from pretix.base.models import Event, Organizer
-
 from pretix.plugins.paypal.payment import Paypal
 
 

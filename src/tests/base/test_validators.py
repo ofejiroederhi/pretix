@@ -7,12 +7,8 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 
 from pretix.base.validators import (
-    BanlistValidator,
-    EventSlugBanlistValidator,
-    OrganizerSlugBanlistValidator,
-    EmailBanlistValidator,
-    multimail_validate,
-    RRuleValidator,
+    BanlistValidator, EmailBanlistValidator, EventSlugBanlistValidator,
+    OrganizerSlugBanlistValidator, RRuleValidator, multimail_validate,
 )
 
 pytestmark = [pytest.mark.unit]
