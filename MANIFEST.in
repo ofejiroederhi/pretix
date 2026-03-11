@@ -2,6 +2,10 @@ include LICENSE
 include README.rst
 include conftest.py
 include *.properties
+include *.md
+include *.test
+include *.yml
+recursive-include src *.xml
 include src/Makefile
 include _build/backend.py
 global-include *.proto
