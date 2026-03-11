@@ -226,4 +226,3 @@ class TestOWASPTop10:
         # This test documents the security requirement
         # Actual SSRF testing would require identifying endpoints that make external requests
         assert True, "Internal network access prevention documented"
-
