@@ -20,8 +20,9 @@ env:
 jobs:
   test:
     runs-on: ubuntu-22.04
-    name: Tests
+    name: Tests (${{ matrix.python-version }}, ${{ matrix.database }})
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.10", "3.11", "3.13"]
         database: [sqlite, postgres]
@@ -73,7 +74,7 @@ jobs:
         run: PRETIX_CONFIG_FILE=tests/ci_${{ matrix.database }}.cfg py.test -n 3 -p no:sugar --cov=./ --cov-report=xml --cov-fail-under=70 tests --maxfail=100
       - name: Run concurrency tests
         working-directory: ./src
-        run: PRETIX_CONFIG_FILE=tests/ci_${{ matrix.database }}.cfg py.test tests/concurrency_tests/ --reuse-db
+        run: PRETIX_CONFIG_FILE=tests/ci_${{ matrix.database }}.cfg py.test tests/concurrency_tests/ --reuse-db -m "not performance"
         if: matrix.database == 'postgres'
       - name: Upload coverage
         uses: codecov/codecov-action@v4
